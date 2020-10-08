@@ -12,5 +12,9 @@
         "destination": "/index.html"
       }
     ]
+  },
+  "react-native": {
+    "admob_android_app_id": "ca-app-pub-7585303156387741~5462107916",
+    "admob_ios_app_id": "ca-app-pub-7585303156387741~5462107916"
   }
 }

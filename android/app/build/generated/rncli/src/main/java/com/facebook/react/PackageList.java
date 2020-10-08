@@ -11,7 +11,12 @@ import com.facebook.react.shell.MainReactPackage;
 import java.util.Arrays;
 import java.util.ArrayList;
 
-
+// @react-native-firebase/admob
+import io.invertase.firebase.admob.ReactNativeFirebaseAdmobPackage;
+// @react-native-firebase/app
+import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;
+// react-native-admob
+import com.sbugert.rnadmob.RNAdMobPackage;
 
 public class PackageList {
   private Application application;
@@ -56,7 +61,10 @@ public class PackageList {
 
   public ArrayList<ReactPackage> getPackages() {
     return new ArrayList<>(Arrays.<ReactPackage>asList(
-      new MainReactPackage(mConfig)
+      new MainReactPackage(mConfig),
+      new ReactNativeFirebaseAdmobPackage(),
+      new ReactNativeFirebaseAppPackage(),
+      new RNAdMobPackage()
     ));
   }
 }

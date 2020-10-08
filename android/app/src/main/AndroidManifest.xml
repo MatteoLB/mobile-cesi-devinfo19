@@ -22,6 +22,11 @@
         </intent-filter>
       </activity>
       <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
+
+      <meta-data
+            android:name="com.google.android.gms.ads.ca-app-pub-7585303156387741/7864393055"
+            android:value="ca-app-pub-7585303156387741/7864393055"/>
+
     </application>
 
 </manifest>
