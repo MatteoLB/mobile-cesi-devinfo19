@@ -14,7 +14,8 @@
     "@react-native-firebase/app": "^8.4.5",
     "react": "16.13.1",
     "react-native": "0.63.3",
-    "react-native-admob": "^2.0.0-beta.6"
+    "react-native-admob": "^2.0.0-beta.6",
+    "react-native-rewards": "^1.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",

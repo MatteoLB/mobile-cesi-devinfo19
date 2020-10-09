@@ -10,9 +10,14 @@
 
 import React from 'react';
 import { SafeAreaView, StyleSheet, Text, Button, TouchableOpacity} from 'react-native';
-import { InterstitialAd, BannerAd, BannerAdSize, TestIds } from '@react-native-firebase/admob';
+import { RewardedAd, RewardedAdEventType, AdEventType, InterstitialAd, BannerAd, BannerAdSize, TestIds } from '@react-native-firebase/admob';
 
 const interstitial = InterstitialAd.createForAdRequest(TestIds.INTERSTITIAL, {
+  requestNonPersonalizedAdsOnly: true,
+  keywords: ['fashion', 'clothing'],
+});
+
+const rewarded = RewardedAd.createForAdRequest(TestIds.REWARDED, {
   requestNonPersonalizedAdsOnly: true,
   keywords: ['fashion', 'clothing'],
 });
@@ -20,13 +25,46 @@ const interstitial = InterstitialAd.createForAdRequest(TestIds.INTERSTITIAL, {
 class App extends React.Component {
 
   state = {
-    pubsEnabled: true
+    pubsEnabled: true,
+    loaded: false,
+    rewardCount: 0
   };
 
 
   componentDidMount() {
     interstitial.load();
+    rewarded.load();
+
+    interstitial.onAdEvent((type) => {
+      if (type === AdEventType.LOADED) {
+        this.setState({loaded: true});
+      }
+      if (type === AdEventType.CLOSED) {
+        console.log('closed');
+        this.setState({loaded: false});
+        interstitial.load();
+      }
+    });
+
+    rewarded.onAdEvent((type, error, reward) => {
+      if (type === RewardedAdEventType.LOADED) {
+        this.setState({loaded: true});
+      }
+
+
+      if (type === AdEventType.CLOSED) {
+        this.setState({loaded: false});
+        rewarded.load();
+      }
+
+      if (type === RewardedAdEventType.EARNED_REWARD) {
+        console.log('User earned reward of ', reward);
+        this.setState({ rewardCount: this.state.rewardCount + Number(reward.amount) });
+      }
+    });
   }
+
+
 
 
   render() {
@@ -35,31 +73,46 @@ class App extends React.Component {
     
     return (
 
-      <SafeAreaView>
+      <SafeAreaView style={styles.container}>
+        
 
-        { pubsEnabled && <BannerAd unitId={TestIds.BANNER} size={BannerAdSize.FULL_BANNER} 
+        { pubsEnabled && <BannerAd unitId={TestIds.BANNER} size={BannerAdSize.SMART_BANNER} 
                                     requestOptions={{requestNonPersonalizedAdsOnly: true,}}
                          /> }
+        
         
 
         { pubsEnabled && 
           <TouchableOpacity onPress={ () => { this.setState({ pubsEnabled: false }) } } style={styles.buttonPub}>
-            <Text style={styles.buttonText}>Désactiver les pubs</Text>
+            <Text style={styles.buttonText}>Désactiver la bannière pub</Text>
           </TouchableOpacity> 
         }
+
         { !pubsEnabled && 
           <TouchableOpacity onPress={ () => { this.setState({ pubsEnabled: true }) } } style={styles.buttonPub}>
-            <Text style={styles.buttonText}>Activer les pubs</Text>
+            <Text style={styles.buttonText}>Activer la bannière pub</Text>
           </TouchableOpacity> 
         }
         
-        <TouchableOpacity style={styles.buttonInterstitial}
-          onPress={() => {
-            interstitial.show();
-          }}
-        >
-          <Text style={styles.buttonText}>Pub interstitielle</Text>
+        
+        <TouchableOpacity style={styles.buttonInterstitial} onPress={() => { interstitial.show() }}>
+          <Text style={styles.buttonText}>Afficher une pub interstitielle</Text>
         </TouchableOpacity>
+
+        
+
+
+        <TouchableOpacity style={styles.buttonReward} onPress={() => { rewarded.show(); }}>
+          <Text style={styles.buttonText}>Obtenir une récompense en regardant une pub</Text>
+        </TouchableOpacity>
+
+
+        <Text style={styles.rewardText}>Vos récompenses actuelles : { this.state.rewardCount }</Text>
+        
+
+        { pubsEnabled && <BannerAd unitId={TestIds.BANNER} size={BannerAdSize.SMART_BANNER} 
+                                    requestOptions={{requestNonPersonalizedAdsOnly: true,}}
+                         /> }
       </SafeAreaView>
 
     );
@@ -67,20 +120,42 @@ class App extends React.Component {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flexWrap: 'wrap', 
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
   buttonPub: {
-    backgroundColor: 'blue',
-    padding: 30,
+    backgroundColor: '#960000',
+    padding: 20,
     marginTop: 50,
-    color: 'white'
+    width: '60%',
+    borderRadius: 5,
   },
   buttonInterstitial: {
-    backgroundColor: 'red',
-    padding: 30,
-    marginTop: 50
+    backgroundColor: '#686868',
+    padding: 20,
+    marginTop: 30,
+    width: '60%',
+    borderRadius: 5,
+  },
+  buttonReward: {
+    backgroundColor: 'green',
+    padding: 20,
+    marginTop: 30,
+    width: '60%',
+    borderRadius: 5,
   },
   buttonText: {
     textAlign: 'center',
-    color: 'white'
+    color: 'white',
+    fontSize: 20,
+  },
+  rewardText: {
+    fontSize: 20,
+    textAlign: 'center',
+    marginTop: 50,
+    marginBottom: 50
   }
 });
 
